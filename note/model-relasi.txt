@@ -1,0 +1,7 @@
+Model dan relasi antar kode dan database
+
+Models ini untuk penghubung antara relasi antar kode php dan database. misal ticket disini itu memiliki hubungan dengan tabel ticket yang ada di mysql.
+
+- hasmany itu dibaca "punya banyak", dia dipasang di sisi yang memiliki kayak user dan category.
+- belongto, dipasang disisi yang punya foreignkey kalau dalam masalah ini itu ticket.
+- $fillable itu daftar kolom yang diisi lewat sintaks create() dan proteksi dari mass assignment.
