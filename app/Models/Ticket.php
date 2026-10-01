@@ -17,6 +17,25 @@ class Ticket extends Model
 
     //1 tiket 1 kategori boi
     public function category(){
-        return $this->belongTo(Category::class);
+        return $this->belongsTo(Category::class);
+    }
+
+    public function priorityLabel() {
+        return match ($this->priority) {
+            'low' => 'Rendah',
+            'medium' => 'Menengah',
+            'high' => 'Tinggi',
+            default => $this->priority,
+        };
+    }
+
+    public function statusLabel() {
+        return match ($this->status) {
+            'open' => 'Terbuka',
+            'in_progress' => 'Sedang Diproses',
+            'done' => 'Selesai',
+            'closed' => 'Tertutup',
+            default => $this->status,
+        };
     }
 }
