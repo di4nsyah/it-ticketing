@@ -19,7 +19,7 @@ class TicketController extends Controller
             $query = $user->tickets();
         }
 
-        $tickets = $query->paginate(10);
+        $tickets = $query->with(['user', 'category'])->paginate(10);
         $categories = Category::orderBy('name')->get();
 
         return view ('tickets.index', compact('tickets', 'categories'));
@@ -34,7 +34,7 @@ class TicketController extends Controller
 
     public function store(Request $request)
     {
-        Gate::authorize('create'. Ticket::class);
+        Gate::authorize('create', Ticket::class);
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],

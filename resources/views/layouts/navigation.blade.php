@@ -13,6 +13,15 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        <x-nav-link :href="route('tickets.index')" :active="request()->routeIs('tickets.index', 'tickets.show')">
+                            {{ auth()->user()->isTeknisi() ? 'Semua Ticket' : 'Ticket Saya' }}
+                        </x-nav-link>
+
+                        @unless (auth()->user()->isTeknisi())
+                            <x-nav-link :href="route('tickets.create')" :active="request()->routeIs('tickets.create')">
+                                Buat Ticket
+                            </x-nav-link>
+                        @endunless
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>

@@ -35,6 +35,7 @@ class Ticket extends Model
             'in_progress' => 'Sedang Diproses',
             'done' => 'Selesai',
             'closed' => 'Tertutup',
+            'cancelled' => 'Dibatalkan',
             default => $this->status,
         };
     }
