@@ -3,33 +3,20 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ $title ?? config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         <link href="https://fonts.bunny.net/css?family=outfit:300,400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased text-ink">
-        <div class="flex min-h-screen flex-col">
-            @include('layouts.navigation')
-
-            @isset($header)
-                <header class="px-5 pt-12 sm:px-8">
-                    <div class="mx-auto max-w-5xl">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
-
-            <main class="flex-1">
+        <div class="flex min-h-screen items-center justify-center px-6">
+            <div class="w-full max-w-md text-center">
                 {{ $slot }}
-            </main>
+            </div>
         </div>
     </body>
 </html>

@@ -1,56 +1,107 @@
+@php
+    $isTeknisi = auth()->user()->isTeknisi();
+@endphp
+
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ auth()->user()->isTeknisi() ? 'Semua Ticket' : 'Ticket Saya' }}
-        </h2>
-    </x-slot>
-
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @if (session('success'))
-                <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">{{ session('success') }}</div>
-            @endif
-
-            <div class="bg-white shadow sm:rounded-lg overflow-x-auto">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-gray-50 text-left text-gray-600">
-                        <tr>
-                            <th class="px-4 py-3">Judul</th>
-                            @if (auth()->user()->isTeknisi())
-                                <th class="px-4 py-3">Pembuat</th>
-                            @endif
-                            <th class="px-4 py-3">Kategori</th>
-                            <th class="px-4 py-3">Prioritas</th>
-                            <th class="px-4 py-3">Status</th>
-                            <th class="px-4 py-3">Dibuat</th>
-                            <th class="px-4 py-3"></th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y">
-                        @forelse ($tickets as $ticket)
-                            <tr>
-                                <td class="px-4 py-3">{{ $ticket->title }}</td>
-                                @if (auth()->user()->isTeknisi())
-                                    <td class="px-4 py-3">{{ $ticket->user->name }}</td>
-                                @endif
-                                <td class="px-4 py-3">{{ $ticket->category->name }}</td>
-                                <td class="px-4 py-3">{{ $ticket->priorityLabel() }}</td>
-                                <td class="px-4 py-3">{{ $ticket->statusLabel() }}</td>
-                                <td class="px-4 py-3">{{ $ticket->created_at->format('d M Y H:i') }}</td>
-                                <td class="px-4 py-3">
-                                    <a href="{{ route('tickets.show', $ticket) }}" class="text-indigo-600 hover:underline">Detail</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="px-4 py-6 text-center text-gray-500">Belum ada ticket.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+        <div class="flex flex-wrap items-end justify-between gap-6">
+            <div>
+                <p class="stat-label">{{ $isTeknisi ? 'Antrean' : 'Riwayat' }}</p>
+                <h1 class="mt-3 font-display text-4xl font-light leading-[1.05] tracking-[-0.035em] text-ink sm:text-5xl">
+                    {{ $isTeknisi ? 'Semua Ticket' : 'Ticket Saya' }}
+                </h1>
             </div>
 
-            <div class="mt-4">{{ $tickets->links() }}</div>
+            @unless ($isTeknisi)
+                <a href="{{ route('tickets.create') }}"
+                   class="inline-flex cursor-pointer items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-canvas transition duration-200 hover:bg-ink/90">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" aria-hidden="true" class="h-3.5 w-3.5">M12 5v14M5 12h14</svg>
+                    {{ __('Buat Ticket') }}
+                </a>
+            @endunless
+        </div>
+    </x-slot>
+
+    <div class="px-5 py-12 sm:px-8">
+        <div class="mx-auto max-w-5xl space-y-4" x-data="{ loading: false }">
+
+            @if (session('success'))
+                <div class="flex items-center gap-3 rounded-2xl border border-line bg-surface px-5 py-4">
+                    <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accent">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                             stroke-linecap="round" stroke-linejoin="round" class="h-3.5 w-3.5 text-ink" aria-hidden="true">
+                            <path d="M5 13l4 4L19 7" />
+                        </svg>
+                    </span>
+                    <p class="text-sm text-ink">{{ session('success') }}</p>
+                </div>
+            @endif
+
+            <div class="card overflow-hidden">
+
+                {{-- Real rows --}}
+                <div x-show="! loading" class="divide-y divide-line">
+                    @forelse ($tickets as $ticket)
+                        <a href="{{ route('tickets.show', $ticket) }}" @click="loading = true"
+                           class="group flex items-center gap-4 px-5 py-4 transition duration-200 hover:bg-sunken sm:px-6">
+                            {{-- Timeline marker: accent marks work in motion. --}}
+                            <span @class([
+                                'relative h-2.5 w-2.5 shrink-0 rounded-full',
+                                'bg-accent' => $ticket->status === 'in_progress',
+                                'bg-ink' => $ticket->status !== 'in_progress',
+                            ]) aria-hidden="true"></span>
+
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate text-sm font-medium text-ink">
+                                    <span class="mr-2 font-display text-xs text-ink-faint">#{{ $ticket->id }}</span>{{ $ticket->title }}
+                                </p>
+                                <p class="mt-1 truncate text-xs text-ink-faint">
+                                    {{ $isTeknisi ? $ticket->user->name : $ticket->category->name }}
+                                    &middot; {{ $ticket->created_at->format('d M Y') }}
+                                </p>
+                            </div>
+
+                            <x-ticket-badges :status="$ticket" class="shrink-0" />
+
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                                 class="hidden h-4 w-4 shrink-0 text-ink-faint transition duration-200 group-hover:translate-x-0.5 sm:block">
+                                <path d="M9 6l6 6-6 6" />
+                            </svg>
+                        </a>
+                    @empty
+                        <x-state-empty icon="inbox"
+                                       title="Belum ada ticket"
+                                       hint="{{ $isTeknisi ? 'Belum ada tiket yang dibuat karyawan.' : 'Ticket yang kamu buat akan muncul di sini.' }}">
+                            @unless ($isTeknisi)
+                                <a href="{{ route('tickets.create') }}"
+                                   class="inline-flex cursor-pointer items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-canvas transition duration-200 hover:bg-ink/90">
+                                    {{ __('Buat Ticket') }}
+                                </a>
+                            @endunless
+                        </x-state-empty>
+                    @endforelse
+                </div>
+
+                {{-- Loading state: same rhythm as the real rows, so nothing jumps. --}}
+                <div x-show="loading" x-cloak class="divide-y divide-line">
+                    @for ($i = 0; $i < 6; $i++)
+                        <div class="flex items-center gap-4 px-5 py-4 sm:px-6">
+                            <x-skeleton variant="circle" class="h-2.5 w-2.5 shrink-0" />
+                            <div class="flex-1 space-y-2">
+                                <x-skeleton class="h-3.5" style="width: {{ 55 - ($i % 3) * 8 }}%" />
+                                <x-skeleton class="h-2.5 w-1/3" />
+                            </div>
+                            <x-skeleton class="h-5 w-28 shrink-0" />
+                        </div>
+                    @endfor
+                </div>
+            </div>
+
+            @if ($tickets->hasPages())
+                <div class="pt-2">{{ $tickets->links() }}</div>
+            @endif
         </div>
     </div>
 </x-app-layout>

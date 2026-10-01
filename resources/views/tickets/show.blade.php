@@ -1,36 +1,77 @@
+@php
+    $isTeknisi = auth()->user()->isTeknisi();
+    $backLabel = $isTeknisi ? 'Semua Ticket' : 'Ticket Saya';
+@endphp
+
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Detail Ticket #{{ $ticket->id }}</h2>
+        <a href="{{ route('tickets.index') }}" class="inline-flex items-center gap-1.5 text-[13px] text-ink-faint transition hover:text-ink">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round" class="h-3.5 w-3.5" aria-hidden="true">M15 6l-6 6 6 6</svg>
+            {{ $backLabel }}
+        </a>
+
+        <div class="mt-6 flex flex-wrap items-end justify-between gap-6">
+            <div class="min-w-0">
+                <p class="stat-label">Ticket #{{ $ticket->id }}</p>
+                <h1 class="mt-3 font-display text-4xl font-light leading-[1.05] tracking-[-0.035em] text-ink sm:text-5xl">
+                    {{ $ticket->title }}
+                </h1>
+            </div>
+
+            <x-ticket-badges :status="$ticket" />
+        </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow sm:rounded-lg p-6 space-y-4">
-                <h3 class="text-lg font-semibold">{{ $ticket->title }}</h3>
-                <p class="text-gray-700 whitespace-pre-line">{{ $ticket->description }}</p>
+    <div class="px-5 py-12 sm:px-8">
+        <div class="mx-auto max-w-2xl space-y-4">
 
-                <dl class="grid grid-cols-2 gap-3 text-sm">
-                    <div><dt class="text-gray-500">Pembuat</dt><dd>{{ $ticket->user->name }}</dd></div>
-                    <div><dt class="text-gray-500">Kategori</dt><dd>{{ $ticket->category->name }}</dd></div>
-                    <div><dt class="text-gray-500">Prioritas</dt><dd>{{ $ticket->priorityLabel() }}</dd></div>
-                    <div><dt class="text-gray-500">Status</dt><dd>{{ $ticket->statusLabel() }}</dd></div>
-                    <div><dt class="text-gray-500">Dibuat</dt><dd>{{ $ticket->created_at->format('d M Y H:i') }}</dd></div>
-                    <div><dt class="text-gray-500">Diperbarui</dt><dd>{{ $ticket->updated_at->format('d M Y H:i') }}</dd></div>
-                </dl>
+            <div class="card card-pad rise">
+                <p class="whitespace-pre-line text-sm leading-relaxed text-ink-soft">{{ $ticket->description }}</p>
+            </div>
 
-                <div class="flex items-center gap-4 pt-2">
-                    <a href="{{ route('tickets.index') }}" class="text-sm text-gray-600 hover:underline">&larr; Kembali</a>
+            {{-- Deliberately uneven: the description is the subject, metadata recedes. --}}
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div class="card px-6 py-5">
+                    <p class="stat-label">Pembuat</p>
+                    <p class="mt-3 text-sm text-ink">{{ $ticket->user->name }}</p>
+                </div>
 
-                    @can('cancel', $ticket)
-                        <form method="POST" action="{{ route('tickets.cancel', $ticket) }}"
-                              onsubmit="return confirm('Batalkan ticket ini?')">
-                            @csrf
-                            @method('PATCH')
-                            <x-danger-button>Batalkan Ticket</x-danger-button>
-                        </form>
-                    @endcan
+                <div class="card px-6 py-5">
+                    <p class="stat-label">Kategori</p>
+                    <p class="mt-3 text-sm text-ink">{{ $ticket->category->name }}</p>
+                </div>
+
+                <div class="card px-6 py-5">
+                    <p class="stat-label">Dibuat</p>
+                    <p class="mt-3 font-display text-lg font-light tracking-[-0.02em] text-ink">
+                        {{ $ticket->created_at->format('d M Y') }}
+                    </p>
+                </div>
+
+                <div class="card px-6 py-5">
+                    <p class="stat-label">Diperbarui</p>
+                    <p class="mt-3 font-display text-lg font-light tracking-[-0.02em] text-ink">
+                        {{ $ticket->updated_at->format('d M Y') }}
+                    </p>
                 </div>
             </div>
+
+            @if (auth()->user()->can('cancel', $ticket))
+                <div class="card card-pad flex flex-wrap items-center justify-between gap-6">
+                    <div>
+                        <p class="text-sm text-ink">Batalkan ticket ini?</p>
+                        <p class="mt-1 text-[13px] text-ink-faint">Hanya bisa selama status masih terbuka.</p>
+                    </div>
+
+                    <form method="POST" action="{{ route('tickets.cancel', $ticket) }}"
+                          onsubmit="return confirm('Batalkan ticket ini?')">
+                        @csrf
+                        @method('PATCH')
+                        <x-danger-button>Batalkan Ticket</x-danger-button>
+                    </form>
+                </div>
+            @endif
         </div>
     </div>
 </x-app-layout>

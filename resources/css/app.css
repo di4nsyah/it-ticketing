@@ -1,3 +1,135 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    /* Structure comes from thin outlines, not shadows. */
+    :focus-visible {
+        @apply outline-none ring-2 ring-ink ring-offset-2 ring-offset-canvas;
+    }
+
+    ::selection {
+        @apply bg-accent text-ink;
+    }
+
+    .tabular {
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Alpine-controlled panels stay hidden until Alpine initialises. */
+    [x-cloak] {
+        display: none !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}
+
+@layer components {
+    /* ---- Surface ---- */
+    .card {
+        @apply rounded-[28px] border border-line bg-surface;
+    }
+
+    .card-pad {
+        @apply p-6 sm:p-8;
+    }
+
+    /* ---- Type scale: deliberately uneven, so hierarchy is visible ---- */
+    .stat-hero {
+        @apply font-display text-[64px] font-light leading-[0.9] tracking-[-0.04em] text-ink tabular;
+    }
+
+    .stat-value {
+        @apply font-display text-[28px] font-light leading-none tracking-[-0.02em] text-ink tabular;
+    }
+
+    .stat-label {
+        @apply text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-faint;
+    }
+
+    /* ---- Chips ---- */
+    .chip {
+        @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium tracking-wide;
+    }
+
+    /* ---- Forms ---- */
+    .field {
+        @apply w-full rounded-2xl border-line bg-surface px-4 py-3 text-sm text-ink
+               placeholder:text-ink-faint
+               focus:border-ink;
+    }
+
+    /* ---- Skeleton: a solid highlight bar sweeps across, no gradient ---- */
+    .skeleton {
+        @apply relative overflow-hidden rounded-full bg-sunken;
+    }
+
+    .skeleton::after {
+        content: '';
+        position: absolute;
+        inset-block: 0;
+        left: 0;
+        width: 40%;
+        background-color: rgba(255, 255, 255, 0.5);
+        animation: skeleton-sweep 1.4s ease-in-out infinite;
+    }
+
+    /* ---- Motion ---- */
+    .rise {
+        animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .pulse-dot::after {
+        content: '';
+        @apply absolute inset-0 rounded-full bg-accent;
+        animation: pulse-ring 2s ease-out infinite;
+    }
+}
+
+@keyframes skeleton-sweep {
+    0% {
+        transform: translateX(-110%);
+    }
+
+    100% {
+        transform: translateX(260%);
+    }
+}
+
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes pulse-ring {
+    0% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+
+    70%,
+    100% {
+        opacity: 0;
+        transform: scale(2.4);
+    }
+}
