@@ -107,7 +107,7 @@ class TicketTest extends TestCase
         $ticket->refresh();
 
         $this->assertSame('cancelled', $ticket->status);
-        $this->assertSame('Dibatalkan', $ticket->statusLabel());
+        $this->assertSame('Cancelled', $ticket->statusLabel());
     }
 
     public function test_karyawan_tidak_bisa_membatalkan_ticket_orang_lain(): void

@@ -8,6 +8,8 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * MVC database: migration bawaan Laravel, isinya users, password_reset_tokens, sessions
      */
     public function up(): void
     {
@@ -16,8 +18,16 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
+
+            // yg tersimpan udah di-hash, lihat casts() di User.php
             $table->string('password');
+
+            // MVC database: kolom role yg bikin project ini bisa dibedain
+            // karyawan sama teknisi, default karyawan kalo role nggak diisi
             $table->string('role')->default('karyawan');
+
+            // kolom "ingat saya", tapi di project ini nggak kepakai karena User
+            // nggak implement MustVerifyEmail (importnya masih di-comment)
             $table->rememberToken();
             $table->timestamps();
         });

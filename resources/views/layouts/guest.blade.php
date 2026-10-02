@@ -22,7 +22,7 @@
             </a>
 
             <div class="mt-8 w-full sm:max-w-md">
-                <div class="rise overflow-hidden rounded-[28px] border border-line bg-surface">
+                <div class="card card-pad rise">
                     {{ $slot }}
                 </div>
             </div>

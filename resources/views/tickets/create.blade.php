@@ -1,3 +1,6 @@
+{{--
+    MVC view: TicketController@create ngasih $categories buat isi dropdown kategori
+--}}
 <x-app-layout>
     <x-slot name="header">
         <p class="stat-label">Ticket Baru</p>
@@ -15,11 +18,17 @@
                     </p>
                 </div>
 
+                {{--
+                    alur: form -> POST /tickets -> route tickets.store ->
+                    TicketController@store -> validasi -> create() -> database
+                --}}
                 <form method="POST" action="{{ route('tickets.store') }}" class="px-7 pb-8 pt-7 sm:px-9">
+                    {{-- token biar request ini pasti dari form kita, cegah serangan CSRF --}}
                     @csrf
 
                     <div>
                         <x-input-label for="title" value="Judul" />
+                        {{-- old() buat nampilin lagi input kalo validasi gagal --}}
                         <x-text-input id="title" name="title" type="text" class="mt-2" :value="old('title')" required autofocus />
                         <x-input-error :messages="$errors->get('title')" class="mt-2" />
                     </div>
@@ -34,6 +43,7 @@
                     <div class="mt-7 grid gap-7 sm:grid-cols-2">
                         <div>
                             <x-input-label for="category_id" value="Kategori" />
+                            {{-- $categories dari controller, makanya view ga perlu query sendiri --}}
                             <select id="category_id" name="category_id" required class="field mt-2">
                                 <option value="">-- Pilih kategori --</option>
                                 @foreach ($categories as $category)

@@ -1,8 +1,13 @@
+{{--
+    MVC view: DashboardController@index ngasih $counts, $total, $recent, $isTeknisi
+    semua angka udah dihitung di controller, view cuma nampilin
+--}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-wrap items-end justify-between gap-6">
             <div>
                 <p class="stat-label">{{ $isTeknisi ? 'Panel Teknisi' : 'Portal Karyawan' }}</p>
+                {{-- Str::before ambil nama sebelum spasi, buat sapaan singkat --}}
                 <h1 class="mt-3 font-display text-4xl font-light leading-[1.05] tracking-[-0.035em] text-ink sm:text-5xl">
                     Halo, {{ \Illuminate\Support\Str::before(auth()->user()->name, ' ') }}
                 </h1>
@@ -17,7 +22,7 @@
     <div class="px-5 py-12 sm:px-8">
         <div class="mx-auto max-w-5xl space-y-4">
 
-            {{-- Bento: one oversized figure, three quiet ones. --}}
+            {{-- angka utama dibikin beda ukuran sama 3 angka sebelahnya --}}
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr]">
                 <div class="card rise card-pad flex flex-col justify-between">
                     <div>
@@ -28,20 +33,25 @@
                     <div class="mt-8 flex items-center gap-3">
                         <span class="h-1 w-10 rounded-full bg-accent" aria-hidden="true"></span>
                         <p class="text-[13px] text-ink-soft">
+                            {{--
+                                $counts->get('open', 0) = ambil nilai key 'open'
+                                $counts = ['open' => 3, 'done' => 5], angka kedua defaultnya 0
+                            --}}
                             @if ($total === 0)
                                 Belum ada ticket tercatat.
                             @else
-                                {{ $counts->get('open', 0) }} menunggu, {{ $counts->get('in_progress', 0) }} sedang dikerjakan.
+                                {{ $counts->get('open', 0) }} menunggu, {{ $counts->get('progress', 0) }} sedang dikerjakan.
                             @endif
                         </p>
                     </div>
                 </div>
 
                 <div class="grid gap-4">
+                    {{-- 3 kartu kecil, satu pola dipake semua --}}
                     @php
                         $secondary = [
                             ['label' => 'Terbuka', 'key' => 'open'],
-                            ['label' => 'Diproses', 'key' => 'in_progress'],
+                            ['label' => 'Diproses', 'key' => 'progress'],
                             ['label' => 'Selesai', 'key' => 'done'],
                         ];
                     @endphp
@@ -56,7 +66,6 @@
                 </div>
             </div>
 
-            {{-- Latest activity --}}
             <div class="card mt-4 overflow-hidden">
                 <div class="flex items-center justify-between px-6 py-5">
                     <p class="stat-label">Aktivitas Terakhir</p>
@@ -65,6 +74,7 @@
                     </a>
                 </div>
 
+                {{-- $recent = 3 ticket paling baru dari DashboardController --}}
                 @forelse ($recent as $ticket)
                     <a href="{{ route('tickets.show', $ticket) }}"
                        class="flex items-center gap-4 border-t border-line px-6 py-4 transition duration-200 hover:bg-sunken">
@@ -78,7 +88,8 @@
 
                         <x-ticket-badges :status="$ticket" />
                     </a>
-                @empty
+@empty
+                    {{-- @empty = tampilan pas $recent kosong --}}
                     <div class="border-t border-line">
                         <x-state-empty icon="inbox"
                                        title="Belum ada ticket"
@@ -87,7 +98,7 @@
                 @endforelse
             </div>
 
-            {{-- Next step --}}
+            {{-- isi dan tombolnya beda.role teknisi vs karyawan --}}
             <div class="card card-pad flex flex-wrap items-center justify-between gap-6">
                 <p class="max-w-sm text-[13px] leading-relaxed text-ink-soft">
                     {{ $isTeknisi
@@ -99,7 +110,7 @@
                     <a href="{{ route('tickets.create') }}"
                        class="inline-flex cursor-pointer items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-canvas transition duration-200 hover:bg-ink/90">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                             stroke-linecap="round" aria-hidden="true" class="h-3.5 w-3.5">M12 5v14M5 12h14</svg>
+                             stroke-linecap="round" aria-hidden="true" class="h-3.5 w-3.5"><path d="M12 5v14M5 12h14" /></svg>
                         {{ __('Buat Ticket') }}
                     </a>
                 @else

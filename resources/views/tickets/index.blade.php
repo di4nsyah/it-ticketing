@@ -1,3 +1,7 @@
+{{--
+    MVC view: TicketController@index ngasih $tickets (10 per halaman) + $categories
+    view cuma nampilin, nggak pernah query database sendiri
+--}}
 @php
     $isTeknisi = auth()->user()->isTeknisi();
 @endphp
@@ -7,16 +11,18 @@
         <div class="flex flex-wrap items-end justify-between gap-6">
             <div>
                 <p class="stat-label">{{ $isTeknisi ? 'Antrean' : 'Riwayat' }}</p>
+                {{-- judul ikut berubah, karena datanya juga beda --}}
                 <h1 class="mt-3 font-display text-4xl font-light leading-[1.05] tracking-[-0.035em] text-ink sm:text-5xl">
                     {{ $isTeknisi ? 'Semua Ticket' : 'Ticket Saya' }}
                 </h1>
             </div>
 
+            {{-- teknisi nggak punya tombol ini karena dia nggak boleh create --}}
             @unless ($isTeknisi)
                 <a href="{{ route('tickets.create') }}"
                    class="inline-flex cursor-pointer items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-canvas transition duration-200 hover:bg-ink/90">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                         stroke-linecap="round" aria-hidden="true" class="h-3.5 w-3.5">M12 5v14M5 12h14</svg>
+                         stroke-linecap="round" aria-hidden="true" class="h-3.5 w-3.5"><path d="M12 5v14M5 12h14" /></svg>
                     {{ __('Buat Ticket') }}
                 </a>
             @endunless
@@ -26,6 +32,7 @@
     <div class="px-5 py-12 sm:px-8">
         <div class="mx-auto max-w-5xl space-y-4" x-data="{ loading: false }">
 
+            {{-- pesan flash dari controller, cuma muncul sekali terus dihapus --}}
             @if (session('success'))
                 <div class="flex items-center gap-3 rounded-2xl border border-line bg-surface px-5 py-4">
                     <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accent">
@@ -40,16 +47,21 @@
 
             <div class="card overflow-hidden">
 
-                {{-- Real rows --}}
+                {{-- data asli, muncul pas halaman selesai dimuat --}}
                 <div x-show="! loading" class="divide-y divide-line">
+                    {{-- @forelse = @foreach + tampilan pas datanya kosong --}}
                     @forelse ($tickets as $ticket)
+                        {{--
+                            route() bikin URL dari nama route, bukan nulis /tickets/5 manual
+                            klik -> route tickets.show -> TicketController@show
+                        --}}
                         <a href="{{ route('tickets.show', $ticket) }}" @click="loading = true"
                            class="group flex items-center gap-4 px-5 py-4 transition duration-200 hover:bg-sunken sm:px-6">
-                            {{-- Timeline marker: accent marks work in motion. --}}
+                            {{-- bulat di kiri tiap baris, kuning kalo lagi dikerjakan --}}
                             <span @class([
                                 'relative h-2.5 w-2.5 shrink-0 rounded-full',
-                                'bg-accent' => $ticket->status === 'in_progress',
-                                'bg-ink' => $ticket->status !== 'in_progress',
+                                'bg-accent' => $ticket->status === 'progress',
+                                'bg-ink' => $ticket->status !== 'progress',
                             ]) aria-hidden="true"></span>
 
                             <div class="min-w-0 flex-1">
@@ -71,6 +83,7 @@
                             </svg>
                         </a>
                     @empty
+                        {{-- @empty = tampilan pas $tickets-nya kosong --}}
                         <x-state-empty icon="inbox"
                                        title="Belum ada ticket"
                                        hint="{{ $isTeknisi ? 'Belum ada tiket yang dibuat karyawan.' : 'Ticket yang kamu buat akan muncul di sini.' }}">
@@ -84,7 +97,7 @@
                     @endforelse
                 </div>
 
-                {{-- Loading state: same rhythm as the real rows, so nothing jumps. --}}
+{{-- skeleton: bentuknya sama sama data beneran, biar ga ada pergeseran --}}
                 <div x-show="loading" x-cloak class="divide-y divide-line">
                     @for ($i = 0; $i < 6; $i++)
                         <div class="flex items-center gap-4 px-5 py-4 sm:px-6">
@@ -99,6 +112,7 @@
                 </div>
             </div>
 
+            {{-- tombol halaman, datanya udah dibagi per 10 dari paginate(10) di controller --}}
             @if ($tickets->hasPages())
                 <div class="pt-2">{{ $tickets->links() }}</div>
             @endif

@@ -36,7 +36,7 @@
                              stroke-linecap="round" stroke-linejoin="round" class="h-3.5 w-3.5" aria-hidden="true">
                             <path d="M12 5v14M5 12h14" />
                         </svg>
-                        {{ __('Buat Ticket') }}
+                        {{('Buat Ticket')}}
                     </x-nav-link>
                 @endunless
             </div>

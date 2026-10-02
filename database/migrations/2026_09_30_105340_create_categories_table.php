@@ -8,12 +8,17 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * MVC database: bikin tabel categories, dijalanin duluan sebelum tickets
      */
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
+
+            // nama kategori nggak boleh dobel, nggak boleh ada Network 2x
             $table->string('name')->unique();
+
             $table->timestamps();
         });
     }

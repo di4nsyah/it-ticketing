@@ -1,11 +1,17 @@
+{{--
+    MVC blade component: dipanggil pake <x-ticket-badges :status="$ticket" />
+    dipakai di 3 halaman, makanya dibikin component biar ga ditulis ulang
+--}}
 @props(['status'])
 
 @php
+    // pemetaan value database ke warna. labelnya sendiri ada di Model Ticket
+    // (statusLabel/priorityLabel), file ini cuma milih warnanya
+    // ?? buat jaga-jaga kalo ada status baru yg belum ada di daftar ini
     $statusTone = [
         'open' => 'bg-sunken text-ink-soft',
-        'in_progress' => 'bg-accent text-ink',
+        'progress' => 'bg-accent text-ink',
         'done' => 'border border-line bg-surface text-ink-soft',
-        'closed' => 'border border-line bg-surface text-ink-faint',
         'cancelled' => 'bg-sunken text-ink-faint',
     ][$status->status] ?? 'bg-sunken text-ink-soft';
 
@@ -15,11 +21,11 @@
         'high' => 'bg-ink text-canvas',
     ][$status->priority] ?? 'text-ink-faint';
 
-    $isLive = $status->status === 'in_progress';
+    // status ini doang yg nampilin titik beranimasi, biar keliatan yg lagi dikerjakan
+    $isLive = $status->status === 'progress';
 @endphp
 
 <span {{ $attributes->merge(['class' => 'flex flex-wrap items-center gap-1.5']) }}>
-    {{-- Priority: the single dark chip is what "urgent" looks like here. --}}
     <span class="chip {{ $priorityTone }}">
         @if ($status->priority === 'high')
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
@@ -34,7 +40,6 @@
         {{ $status->priorityLabel() }}
     </span>
 
-    {{-- Status: accent is reserved for work currently in motion. --}}
     <span class="chip {{ $statusTone }}">
         @if ($isLive)
             <span class="pulse-dot relative h-1.5 w-1.5 rounded-full bg-accent-deep" aria-hidden="true"></span>

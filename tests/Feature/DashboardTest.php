@@ -42,7 +42,7 @@ class DashboardTest extends TestCase
             ->assertViewHas('total', 2)
             ->assertViewHas('counts', fn ($counts) => $counts->get('open') === 1
                 && $counts->get('done') === 1
-                && ! $counts->has('in_progress'));
+                && ! $counts->has('progress'));
     }
 
     public function test_teknisi_melihat_statistik_seluruh_ticket(): void
@@ -52,14 +52,14 @@ class DashboardTest extends TestCase
         $karyawan = User::factory()->create(['role' => 'karyawan']);
 
         $this->ticket($karyawan, $category, 'open');
-        $this->ticket($karyawan, $category, 'in_progress');
-        $this->ticket($karyawan, $category, 'in_progress');
+        $this->ticket($karyawan, $category, 'progress');
+        $this->ticket($karyawan, $category, 'progress');
 
         $this->actingAs($teknisi)
             ->get(route('dashboard'))
             ->assertOk()
             ->assertViewHas('total', 3)
             ->assertViewHas('counts', fn ($counts) => $counts->get('open') === 1
-                && $counts->get('in_progress') === 2);
+                && $counts->get('progress') === 2);
     }
 }
